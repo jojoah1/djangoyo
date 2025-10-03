@@ -1,0 +1,71 @@
+services:
+  db:
+    image: postgres:15
+    container_name: django_db
+    environment:
+      POSTGRES_DB: mypractic
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: qwerty
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - django_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mypractic"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: django_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    networks:
+      - django_network
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    restart: unless-stopped
+
+  web:
+    build: .
+    container_name: django_web
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - static_volume:/app/static
+      - media_volume:/app/media
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=django-insecure-key-123
+      - ALLOWED_HOSTS=localhost,127.0.0.1,web
+      - POSTGRES_DB=mypractic
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=qwerty
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+    depends_on:
+      - db
+    networks:
+      - django_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  static_volume:
+  media_volume:
+
+networks:
+  django_network:
+    driver: bridge

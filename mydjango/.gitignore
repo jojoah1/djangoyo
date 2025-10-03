@@ -1,0 +1,33 @@
+# Django
+*.pyc
+*__pycache__/
+db.sqlite3
+media/
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
+.env.local
+
+# Docker
+.dockerignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Static files
+/staticfiles/
